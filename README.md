@@ -1,6 +1,8 @@
-# C-Language-Roadmap-Journey
-C Language Roadmap Journey
-A modern, interactive roadmap website designed to guide learners through the complete journey of mastering the C programming language. The project presents all 16 phases of C learning in a visually engaging format, styled as a road or journey map. Each milestone includes topics, progress tracking, and relevant visuals to make the learning experience clear and motivating.
+🌐 C Language Roadmap Journey
+A modern, interactive roadmap website that transforms the process of learning C into a visual journey.
+Instead of a plain checklist, you travel along a winding road of 16 milestones, each representing a critical phase of mastering C — from the basics of program structure to advanced topics like system programming, socket programming, and reverse engineering.
+
+👉 Live Website: https://dhiru69-tech.github.io/C-Language-Roadmap-Journey/
 
 📚 Roadmap Phases
 Foundation
