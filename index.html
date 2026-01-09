@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>C Roadmap — Journey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0e111b;
+      --panel: #121726;
+      --card: #161c2f;
+      --text: #e6eaf5;
+      --muted: #9aa3b2;
+      --accent: #6ee7f2;
+      --accent2: #a78bfa;
+      --accent3: #00d4a6;
+      --border: rgba(255,255,255,0.08);
+      --shadow: 0 18px 40px rgba(0,0,0,0.35);
+    }
+    [data-theme="light"] {
+      --bg: #f6f8fc;
+      --panel: #ffffff;
+      --card: #ffffff;
+      --text: #1b2236;
+      --muted: #5b6475;
+      --border: rgba(0,0,0,0.08);
+      --shadow: 0 18px 40px rgba(0,0,0,0.12);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background:
+        radial-gradient(900px 400px at 15% 10%, rgba(167,139,250,0.12), transparent 60%),
+        radial-gradient(900px 400px at 85% 15%, rgba(110,231,242,0.10), transparent 60%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    /* Header */
+    .header {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1rem 1rem;
+    }
+    .title {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin: 0;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .subtitle {
+      margin: 0.4rem 0 1rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .toolbar {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 0.55rem 0.9rem;
+      border-radius: 10px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--text);
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease;
+      box-shadow: var(--shadow);
+    }
+    .btn:hover { transform: translateY(-2px); }
+
+    /* Progress */
+    .progress {
+      max-width: 1100px;
+      margin: 1rem auto 1.5rem;
+      padding: 1rem;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+    }
+    .progress-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 0.6rem;
+    }
+    .progress-bar {
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent3));
+      transition: width 0.5s ease;
+    }
+
+    /* Layout: vertical timeline with left/right alternating cards */
+    .timeline {
+      max-width: 1100px;
+      margin: 0 auto 3rem;
+      padding: 0 1rem;
+      position: relative;
+    }
+    .line {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: rgba(255,255,255,0.15);
+      transform: translateX(-50%);
+    }
+
+    .phase {
+      position: relative;
+      width: 48%;
+      margin: 1.2rem 0;
+      padding: 1rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(6px);
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.5s ease, transform 0.5s ease, box-shadow 0.2s ease;
+    }
+    .phase.visible { opacity: 1; transform: translateY(0); }
+    .phase:hover { box-shadow: 0 24px 60px rgba(0,0,0,0.45); }
+
+    .phase.left { left: 0; }
+    .phase.right { left: 52%; }
+
+    .dot {
+      position: absolute;
+      top: 1.2rem;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent3);
+      box-shadow: 0 0 0 6px rgba(0,212,166,0.15);
+    }
+    .phase.left .dot { right: -34px; }
+    .phase.right .dot { left: -34px; }
+
+    .head {
+      display: grid;
+      grid-template-columns: 48px 1fr auto;
+      gap: 0.8rem;
+      align-items: center;
+      margin-bottom: 0.6rem;
+    }
+    .num {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      color: #0e111b;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: 0 10px 20px rgba(167,139,250,0.25);
+    }
+    .title-sm { font-weight: 700; }
+    .desc { color: var(--muted); font-size: 0.9rem; }
+    .badge {
+      padding: 0.35rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      background: var(--panel);
+      font-size: 0.8rem;
+    }
+    .phase.completed .badge { background: var(--accent3); color: #0e111b; border-color: transparent; }
+
+    .img {
+      width: 100%;
+      height: 120px;
+      border-radius: 12px;
+      background-size: cover;
+      background-position: center;
+      margin: 0.6rem 0;
+      transform: scale(0.98);
+      transition: transform 0.25s ease, filter 0.25s ease;
+      filter: saturate(1.05) contrast(1.05);
+    }
+    .phase:hover .img { transform: scale(1.02); filter: saturate(1.15) contrast(1.1); }
+
+    .topics {
+      list-style: none;
+      padding: 0;
+      margin: 0.4rem 0 0.6rem;
+    }
+    .topics li {
+      position: relative;
+      padding-left: 1.1rem;
+      margin: 0.35rem 0;
+      font-size: 0.92rem;
+    }
+    .topics li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.48rem;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.6rem;
+      margin-top: 0.4rem;
+    }
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--muted);
+      font-size: 0.88rem;
+      user-select: none;
+      cursor: pointer;
+    }
+    .toggle input { accent-color: var(--accent3); cursor: pointer; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .line { left: 8px; }
+      .phase { width: 100%; left: 0 !important; }
+      .phase .dot { left: -34px; right: auto; }
+    }
+  </style>
+</head>
+<body data-theme="dark">
+  <section class="header">
+    <h1 class="title">C Language Roadmap — Journey</h1>
+    <p class="subtitle"></p>
+    <div class="toolbar">
+      <button class="btn" id="toggleTheme">Toggle Dark/Light</button>
+      <button class="btn" id="resetProgress">Reset Progress</button>
+      <button class="btn" id="expandAll">Expand All</button>
+      <button class="btn" id="collapseAll">Collapse All</button>
+    </div>
+  </section>
+
+  <section class="progress">
+    <div class="progress-head">
+      <span>Journey Progress</span>
+      <span id="progressText">0%</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </section>
+
+  <section class="timeline">
+    <div class="line"></div>
+
+    <!-- Phases (16) -->
+    <!-- Use alternating left/right classes for visual rhythm -->
+    <!-- Phase 1 -->
+    <article class="phase left" data-phase="1">
+      <span class="dot"></span>
+      <div class="head">
+        <div class="num">01</div>
+        <div>
+          <div class="title-sm">Foundation</div>
+          <div class="desc">Basics of C, environment setup, and program structure.</div>
+        </div>
+        <span class="badge">0/5</span>
+      </div>
+      <div class="img" style="background-image:url('https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200');"></div>
+      <ul class="topics">
+        <li>What is C, Compiler, IDE setup</li>
+        <li>Structure of a C Program</li>
+        <li>Variables, Data Types</li>
+        <li>Input/Output (printf, scanf)</li>
+        <li>Operators</li>
+      </ul>
+      <div class="actions">
+        <label class="toggle"><input type="checkbox" class="complete"> Mark complete</label>
+        <button class="btn details">Details</button>
+      </div>
+    </article>
+
+    <!-- Phase 2 -->
+    <article class="phase right" data-phase="2">
+      <span class="dot"></span>
+      <div class="head">
+        <div class="num">02</div>
+        <div>
+          <div class="title-sm">Control Flow</div>
+          <div class="desc">Branching, loops, and execution control.</div>
+        </div>
+        <span class="badge">0/4</span>
+      </div>
+      <div class="img" style="background-image:url('https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1200');"></div>
+      <ul class="topics">
+        <li>if, else, nested if</li>
+        <li>switch case</li>
+        <li>for, while, do-while loops</li>
+        <li>break, continue</li>
+      </ul>
+      <div class="actions">
+        <label class="toggle"><input type="checkbox" class="complete"> Mark complete</label>
+        <button class="btn details">Details</button>
+      </div>
+    </article>
+
+    <!-- Phase 3 -->
+    <article class="phase left" data-phase="3">
+      <span class="dot"></span>
+      <div class="head">
+        <div class="num">03</div>
+        <div>
+          <div class="title-sm">Functions & Scope</div>
+          <div class="desc">Function design, calling, and variable lifetime.</div>
+        </div>
+        <span class="badge">0/4</span>
+      </div>
+      <div class="img" style="background-image:url('https://images.unsplash.com/photo-1517433456452-f9633a875f6f?q=80&w=1200');"></div>
+      <ul class="topics">
+        <li>Function declaration & definition</li>
+        <li>Call by value, Call by reference</li>
+        <li>Local & Global variables</li>
+        <li>Recursion</li>
+      </ul>
+      <div class="actions">
+        <label class="toggle"><input type="checkbox" class="complete"> Mark complete</label>
+        <button class="btn details">Details</button>
+      </div>
+    </article>
+
+    <!-- Phase 4 -->
+    <article class="phase right" data-phase="4">
+      <span class="dot"></span>
+      <div class="head">
+        <div class="num">04</div>
+        <div>
+          <div class="title-sm">Preprocessor & Macros</div>
+          <div class="desc">Includes, defines, and conditional compilation.</div>
+        </div>
+        <span class="badge">0/3</span>
+      </div>
+      <div class="img" style="background-image:url('https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200');"></div>
+      <ul class="topics">
+        <li>#include, #define</li>
+        <li>Macro functions</li>
+        <li>Conditional compilation</li>
+      </ul>
+      <div class="actions">
+        <label class="toggle"><input type="checkbox" class="complete"> Mark complete</label>
+        <button class="btn details">Details</button>
+      </div>
+    </article>
+
+    <!-- Phase 5 -->
+    <article class="phase left" data-phase="5">
+      <span class="dot"></span>
+      <div class="head">
+        <div class="num">05</div>
+        <div>
+          <div class="title-sm">Arrays & Strings</div>
+          <div class="desc">Data sequences and secure string handling.</div>
+        </div>
+        <span class="badge">0/4</span>
+      </div>
+      <div class="img" style="background-image:url('https://learnloner.com/wp-content/uploads/2025/01/programming-1.png');"></div>
+      <ul class="topics">
+        <li>1D & 2D Arrays</li>
+        <li>Character arrays (Strings)</li>
+        <li>String functions</li>
+        <li>Secure handling (strncpy, snprintf)</li>
+      </ul>
+      <div class="actions">
+        <label class="toggle"><input type="checkbox" class="complete"> Mark complete</label>
+        <button class="btn details">Details</button>
+      </div>
+    </article>
+
+    <!-- Phase 6 -->
+    <article class="phase right" data-phase="6">
+      <span class="dot"></span>
+      <div class="head">
+        <div class="num">06</div>
+        <div>
+          <div class="title-sm">Command Line Arguments</div>
+          <div class="desc">argc/argv and CLI tooling.</div>
+        </div>
+        <span class="badge">0/2</span>
+      </div>
+      <div class="img" style="background-image:url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=1200');"></div>
+      <ul class="topics">
+        <li>argc, argv</li>
+        <li>CLI tool building</li>
+      </ul>
+      <div class="actions">
+        <label class="toggle"><input type="checkbox" class="complete"> Mark complete</label>
+        <button class="btn details">Details</button>
+      </div>
+    </article>
+
+    <!-- Phase 7 -->
+    <article class="phase left" data-phase="7">
+      <span class="dot"></span>
+      <div class="head">
+        <div class="num">07</div>
+        <div>
+          <div class="title-sm">Pointers</div>
+          <div class="desc">Addresses, arithmetic, and function pointers.</div>
+        </div>
+        <span class="badge">0/5</span>
+      </div>
+      <div class="img" style="background-image:url('https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200');"></div>
+      <ul class="topics">
+        <li>Pointer basics & addresses</li>
+        <li>Pointer arithmetic</li>
+        <li>Pointer to pointer</li>
+        <li>Array & pointer relation</li>
+        <li>Function pointers</li>
+      </ul>
+      <div class="actions">
+        <label class="toggle"><input type="checkbox" class="complete"> Mark complete</label>
+        <button class="btn details">Details</button>
+      </div>
+    </article>
+
+    <!-- Phase 8 -->
+    <article class="phase right" data-phase="8">
+      <span class="dot"></span>
+      <div class="head">
+        <div class="num">08</div>
+        <div>
+          <div class="title-sm">Dynamic Memory</div>
+          <div class="desc">Heap management and debugging tools.</div>
+        </div>
+        <span class="badge">0/3</span>
+      </div>
+      <div class="img" style="background-image:url('https://learnloner.com/wp-content/uploads/2025/01/programming-1.png');"></div>
+      <ul class="topics">
+        <li>malloc, calloc, realloc, free</li>
+        <li>Heap vs Stack</li>
+        <li>Valgrind / AddressSanitizer</li>
+      </ul>
+      <div class="actions">
+        <label class="toggle"><input type="checkbox" class="complete"> Mark complete</label>
+        <button class="btn details">Details</button>
+      </div>
+    </article>
+
+    <!-- Phase 9 -->
+    <article class="phase left" data-phase="9">
+      <span class="dot"></span>
+      <div class="head">
+        <div class="num">09</div>
+        <div>
+          <div class="title-sm">Structures & Unions</div>
+          <div class="desc">Composite types and memory layouts.</div>
+        </div>
+        <span class="badge">0/4</span>
+      </div>
+      <div class="img" style="background-image:url('https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200');"></div>
+      <ul class="topics">
+        <li>struct basics</li>
+        <li>Nested structures</li>
+        <li>Union</li>
+        <li>typedef</li>
+      </ul>
+      <div class="actions">
+        <label class="toggle"><input type="checkbox" class="complete"> Mark complete</label>
+        <button class="btn details">Details</button>
+      </div>
+    </article>
+
+    <!-- Phase 10 -->
+    <article class="phase right" data-phase="10">
+      <span class="dot"></span>
+      <div class="head">
+        <div class="num">10</div>
+        <div>
+          <div class="title-sm">File Handling</div>
+          <div class="desc">Text/binary I/O and secure practices.</div>
+        </div>
+        <span class="badge">0/5</span>
+      </div>
+      <div class="img" style="background-image:url('https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1200');"></div>
+      <ul class="topics">
+        <li>File open/close</li>
+        <li>fscanf, fprintf</li>
+        <li>fgets, fputs</li>
+        <li>Binary file handling</li>
+        <li>Secure file handling practices</li>
+      </ul>
+      <div class="actions">
+        <label class="toggle"><input type="checkbox" class="complete"> Mark complete</label>
+        <button class="btn details">Details</button>
+      </div>
+    </article>
+
+    <!-- Phase 11 -->
+    <article class="phase left" data-phase="11">
+      <span class="dot"></span>
+      <div class="head">
+        <div class="num">11</div>
+        <div>
+          <div class="title-sm">System Programming (Linux)</div>
+          <div class="desc">Syscalls, processes, signals, pipes, errors.</div>
+        </div>
+        <span class="badge">0/5</span>
+      </div>
+      <div class="img" style="background-image:url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=1200');"></div>
+      <ul class="topics">
+        <li>System calls (read, write, fork, exec)</li>
+        <li>Process management</li>
+        <li>Signals</li>
+        <li>Pipes</li>
+        <li>Error handling (errno, perror)</li>
+      </ul>
+      <div class="actions">
+        <label class="toggle"><input type="checkbox" class="complete"> Mark complete</label>
+        <button class="btn details">Details</button>
+      </div>
+    </article>
+
+    <!-- Phase 12 -->
+    <article class="phase right" data-phase="12">
+      <span class="dot"></span>
+      <div class="head">
+        <div class="num">12</div>
+        <div>
+          <div class="title-sm">Socket Programming</div>
+          <div class="desc">TCP/UDP and port scanning concepts.</div>
+        </div>
+        <span class="badge">0/3</span>
+      </div>
+      <div class="img" style="background-image:url('https://images.unsplash.com/photo-1517433456452-f9633a875f6f?q=80&w=1200');"></div>
+      <ul class="topics">
+        <li>TCP client/server</li>
+        <li>UDP programming</li>
+        <li>Port scanning concept</li>
+      </ul>
+      <div class="actions">
+        <label class="toggle"><input type="checkbox" class="complete"> Mark complete</label>
+        <button class="btn details">Details</button>
+      </div>
+    </article>
+
+    <!-- Phase 13 -->
+    <article class="phase left" data-phase="13">
+      <span class="dot"></span>
+      <div class="head">
+        <div class="num">13</div>
+        <div>
+          <div class="title-sm">Memory & Vulnerabilities</div>
+          <div class="desc">Exploitation primitives and memory safety.</div>
+        </div>
+        <span class="badge">0/5</span>
+      </div>
+      <div class="img" style="background-image:url('https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200');"></div>
+      <ul class="topics">
+        <li>Buffer overflow</li>
+        <li>Heap overflow</li>
+        <li>Format string vulnerability</li>
+        <li>Use after free</li>
+        <li>Integer overflow, race conditions</li>
+      </ul>
+      <div class="actions">
+        <label class="toggle"><input type="checkbox" class="complete"> Mark complete</label>
+        <button class="btn details">Details</button>
+      </div>
+    </article>
+
+    <!-- Phase 14 -->
+    <article class="phase right" data-phase="14">
+      <span class="dot"></span>
+      <div class="head">
+        <div class="num">14</div>
+        <div>
+          <div class="title-sm">Reverse Engineering Support</div>
+          <div class="desc">Memory layout, assembly mapping, GDB, objdump/r2.</div>
+        </div>
+        <span class="badge">0/4</span>
+      </div>
+      <div class="img" style="background-image:url('https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200');"></div>
+      <ul class="topics">
+        <li>Memory layout understanding</li>
+        <li>Assembly basics mapping</li>
+        <li>Debugging with GDB</li>
+        <li>Disassembly with objdump / radare2</li>
+      </ul>
+      <div class="actions">
+        <label class="toggle"><input type="checkbox" class="complete"> Mark complete</label>
+        <button class="btn details">Details</button>
+      </div>
+    </article>
+
+    <!-- Phase 15 -->
+    <article class="phase left" data-phase="15">
+      <span class="dot"></span>
+      <div class="head">
+        <div class="num">15</div>
+        <div>
+          <div class="title-sm">Secure Coding Practices</div>
+          <div class="desc">Defensive patterns and CERT C guidance.</div>
+        </div>
+        <span class="badge">0/3</span>
+      </div>
+      <div class="img" style="background-image:url('https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1200');"></div>
+      <ul class="topics">
+        <li>Avoid unsafe functions (gets, strcpy)</li>
+        <li>CERT C standards overview</li>
+        <li>Defensive programming mindset</li>
+      </ul>
+      <div class="actions">
+        <label class="toggle"><input type="checkbox" class="complete"> Mark complete</label>
+        <button class="btn details">Details</button>
+      </div>
+    </article>
+
+    <!-- Phase 16 -->
+    <article class="phase right" data-phase="16">
+      <span class="dot"></span>
+      <div class="head">
+        <div class="num">16</div>
+        <div>
+          <div class="title-sm">Mini Projects</div>
+          <div class="desc">Hands-on builds to consolidate learning.</div>
+        </div>
+        <span class="badge">0/5</span>
+      </div>
+      <div class="img" style="background-image:url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=1200');"></div>
+      <ul class="topics">
+        <li>Port scanner</li>
+        <li>Keylogger (learning purpose)</li>
+        <li>Backdoor simulation</li>
+        <li>File integrity checker</li>
+        <li>Secure password manager (bonus)</li>
+      </ul>
+      <div class="actions">
+        <label class="toggle"><input type="checkbox" class="complete"> Mark complete</label>
+        <button class="btn details">Details</button>
+      </div>
+    </article>
+  </section>
+
+  <!-- Minimal details modal -->
+  <div id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; padding:1rem; z-index:50;">
+    <div style="width:min(720px,92%); background:var(--panel); border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow); padding:1rem;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+        <h3 id="modalTitle" style="margin:0;">Phase details</h3>
+        <button class="btn" id="closeModal">Close</button>
+      </div>
+      <div id="modalBody" style="color:var(--muted); font-size:0.95rem;"></div>
+    </div>
+  </div>
+
+  <script>
+    // Theme toggle
+    const root = document.body;
+    document.getElementById('toggleTheme').addEventListener('click', () => {
+      root.dataset.theme = root.dataset.theme === 'light' ? 'dark' : 'light';
+    });
+
+    // Reveal on scroll
+    const phases = Array.from(document.querySelectorAll('.phase'));
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.2 });
+    phases.forEach(p => io.observe(p));
+
+    // Completion state
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+    const saved = JSON.parse(localStorage.getItem('c_roadmap_complete') || '{}');
+
+    // Initialize badges and checkboxes
+    phases.forEach(p => {
+      const phaseId = p.dataset.phase;
+      const topicsCount = p.querySelectorAll('.topics li').length;
+      const badge = p.querySelector('.badge');
+      const checkbox = p.querySelector('.complete');
+      const done = !!saved[phaseId];
+      checkbox.checked = done;
+      if (done) p.classList.add('completed');
+      badge.textContent = done ? `${topicsCount}/${topicsCount}` : `0/${topicsCount}`;
+
+      checkbox.addEventListener('change', () => {
+        if (checkbox.checked) {
+          p.classList.add('completed');
+          badge.textContent = `${topicsCount}/${topicsCount}`;
+          saved[phaseId] = true;
+        } else {
+          p.classList.remove('completed');
+          badge.textContent = `0/${topicsCount}`;
+          delete saved[phaseId];
+        }
+        localStorage.setItem('c_roadmap_complete', JSON.stringify(saved));
+        updateProgress();
+      });
+    });
+
+    function updateProgress() {
+      const total = phases.length;
+      const completed = phases.filter(p => p.classList.contains('completed')).length;
+      const pct = Math.round((completed / total) * 100);
+      progressFill.style.width = pct + '%';
+      progressText.textContent = pct + '%';
+    }
+    updateProgress();
+
+    // Reset progress
+    document.getElementById('resetProgress').addEventListener('click', () => {
+      phases.forEach(p => {
+        p.classList.remove('completed');
+        const checkbox = p.querySelector('.complete');
+        const badge = p.querySelector('.badge');
+        const topicsCount = p.querySelectorAll('.topics li').length;
+        checkbox.checked = false;
+        badge.textContent = `0/${topicsCount}`;
+      });
+      localStorage.removeItem('c_roadmap_complete');
+      updateProgress();
+    });
+
+    // Expand/Collapse (show/hide topics lists)
+    const expandAllBtn = document.getElementById('expandAll');
+    const collapseAllBtn = document.getElementById('collapseAll');
+    expandAllBtn.addEventListener('click', () => {
+      document.querySelectorAll('.topics').forEach(t => t.style.display = 'block');
+    });
+    collapseAllBtn.addEventListener('click', () => {
+      document.querySelectorAll('.topics').forEach(t => t.style.display = 'none');
+    });
+
+    // Details modal
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    document.getElementById('closeModal').addEventListener('click', () => modal.style.display = 'none');
+
+    document.querySelectorAll('.details').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const card = e.target.closest('.phase');
+        const title = card.querySelector('.title-sm').textContent;
+        const desc = card.querySelector('.desc').textContent;
+        const topics = Array.from(card.querySelectorAll('.topics li')).map(li => `• ${li.textContent}`).join('<br/>');
+        modalTitle.textContent = title;
+        modalBody.innerHTML = `<strong>${desc}</strong><br/><br/>${topics}`;
+        modal.style.display = 'flex';
+      });
+    });
+  </script>
+</body>
+</html>
